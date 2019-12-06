@@ -3,6 +3,3 @@
 
 # directories
 /test
-
-# misc
-.travis.yml
