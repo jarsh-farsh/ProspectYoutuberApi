@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const chalk = require('chalk');
 const debug = require('debug')('app');
 
-const mysql = require('mysql');
 const connection = require('./db');
 
 const userRoutes = require('./routes/users')();
@@ -36,5 +35,7 @@ app.use(urlPrefix, userRoutes);
 app.use(urlPrefix, blogRoutes);
 app.use(urlPrefix, productRoutes);
 app.use(urlPrefix, orderRoutes);
+
+
 
 module.exports = app;

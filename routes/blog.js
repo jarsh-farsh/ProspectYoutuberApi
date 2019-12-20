@@ -110,7 +110,7 @@ function routes(){
         var blogCommentQuery = "INSERT INTO blogcomments SET blog_id = ?, comment_id = ?"
 
         if(!comment){
-            res.status(400).send({error:true, message:"There was an error getting the data to insert into db"});
+            res.status(400).send({error:true, message:"There was an error getting the comment"});
         }
 
         connection.query(commentQuery, comment, function(error, results){

@@ -7,10 +7,23 @@ function routes() {
 
   //Retrieve all users
   userRoutes.get('/users', function (req, res) {
-    var query = "SELECT * FROM users";
-    connection.query(query, function (error, results, fields) {
+    var query = "SELECT id, role_id, username, first_name, last_name, date_joined FROM users";
+    var getRoles = req.query.getRoles;
+
+    connection.query(query, function (error, userResults) {
       if (error) throw error;
-      return res.json(results);
+      if(getRoles == 'true'){
+        query = "SELECT * FROM roles"
+        connection.query(query, function(error, roleResults){
+          if(error) throw error;
+          userResults.forEach(u => {
+            u.role = roleResults.find(r => r.id === u.role_id);
+          })
+          return res.json(userResults);
+        })
+      }else{
+        return res.json(userResults);
+      }
     })
   });
 
@@ -20,7 +33,7 @@ function routes() {
     if (!id) {
       return res.status(400).send({ error: true, message: "No id was provided to query" });
     }
-    var query = 'SELECT * FROM users WHERE id=?';
+    var query = 'SELECT id, role_id, username, first_name, last_name, date_joined FROM users WHERE id=?';
     connection.query(query, id, function (error, results, fields) {
       if (error) throw error;
       return res.json(results[0]);
@@ -30,9 +43,6 @@ function routes() {
   //Add new user
   userRoutes.post('/users', function (req, res) {
     let user = req.body;
-
-
-    console.log(user);
 
     if (!user) {
       return res.status(400).send({ error: true, message: "Please provide user" });
@@ -56,24 +66,22 @@ function routes() {
   })
 
   //Update user
-  userRoutes.put('/user', function (req, res) {
-    var query = "UPDATE users SET role_id = ?, email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?";
-    var table = [req.body.role_id, req.body.email, req.body.password, req.body.first_name, req.body.last_name, req.body.id];
+  userRoutes.put('/users', function (req, res) {
+    var query = "UPDATE users SET role_id = ?, username = ?, first_name = ?, last_name = ? WHERE id = ?";
+    var table = [req.body.role_id, req.body.username, req.body.first_name, req.body.last_name, req.body.id];
     query = mysql.format(query, table);
-
-    console.log(query);
 
     connection.query(query, function (error, results, fields) {
       if (error) throw error;
-      return res.json(results);
+      return res.json({error:false, data:results});
         });
   })
 
   //Delete user
-  userRoutes.delete('/user', function(req,res){
+  userRoutes.delete('/users', function(req,res){
     var query = "DELETE FROM users WHERE id = ?";
     let id = req.body.id;
-
+    
     if(!id){
       return res.status(400).send({error: true, message:"Id not provided"});
     }
@@ -93,6 +101,16 @@ function routes() {
     connection.query(query, function(error, results){
       if(error)throw error;
       return res.json(results[0]);   
+    })
+  })
+
+  //Get all roles
+  userRoutes.get('/roles', function(req, res){
+    var query = "SELECT * FROM roles"
+
+    connection.query(query, function(error, results){
+      if(error) throw error;
+      return res.json(results);
     })
   })
 
